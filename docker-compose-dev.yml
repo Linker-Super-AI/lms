@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  mariadb:
+    image: mariadb:10.8
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      - MYSQL_ROOT_PASSWORD=admin
+    ports:
+      - 3307:3306
+    volumes:
+      - lms-mariadb:/var/lib/mysql
+
+  redis:
+    image: redis:alpine
+    ports:
+      - 6380:6379
+    volumes:
+      - lms-redis:/data
+
+  lms:
+    image: ghcr.io/frappe/lms:stable
+    depends_on:
+      - mariadb
+      - redis
+    environment:
+      - DB_HOST=mariadb
+      - DB_PORT=3306
+      - REDIS_CACHE=redis://redis:6379/0
+      - REDIS_QUEUE=redis://redis:6379/1
+    volumes:
+      - lms-sites:/home/frappe/frappe-bench/sites
+      - lms-logs:/home/frappe/frappe-bench/logs
+      # 🔥 关键：挂载本地LMS代码到容器
+      - ./lms:/home/frappe/frappe-bench/apps/lms
+      # 挂载前端代码（可选，如果需要修改前端）
+      - ./frontend:/home/frappe/frappe-bench/apps/lms/frontend
+
+  nginx:
+    image: nginx:alpine
+    depends_on:
+      - lms
+    ports:
+      - 8001:80
+    volumes:
+      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - lms-sites:/home/frappe/frappe-bench/sites:ro
+      - lms-apps:/home/frappe/frappe-bench/apps:ro
+
+volumes:
+  lms-mariadb:
+  lms-redis:
+  lms-sites:
+  lms-logs:
+  lms-apps:

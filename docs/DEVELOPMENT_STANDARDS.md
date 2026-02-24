@@ -12,6 +12,44 @@
 
 ## 🔄 完整开发流程
 
+### 0️⃣ 开发环境选择
+
+**⚠️ 重要：开始开发前，先选择正确的环境！**
+
+#### 开发环境 vs 生产环境
+
+| 环境 | 配置文件 | 用途 | 代码位置 | 修改方式 |
+|------|----------|------|----------|----------|
+| **开发环境** | `docker-compose-dev.yml` | 日常开发<br>代码修改 | 本地挂载<br>`/home/services/lms/` | 直接编辑本地文件 ✅ |
+| **生产环境** | `docker-compose-prod.yml` | 运行服务<br>生产部署 | 容器镜像内 | 需复制到容器 ❌ |
+
+#### 启动开发环境
+
+```bash
+# 1. 停止生产环境
+docker compose -f docker-compose-prod.yml down
+
+# 2. 启动开发环境（代码在本地，修改方便）
+docker compose -f docker-compose-dev.yml up -d
+
+# 3. 验证服务启动
+docker compose -f docker-compose-dev.yml ps
+```
+
+#### 开发完成后切回生产环境
+
+```bash
+# 1. 停止开发环境
+docker compose -f docker-compose-dev.yml down
+
+# 2. 启动生产环境
+docker compose -f docker-compose-prod.yml up -d
+```
+
+**📚 详细说明：** 参考 `docs/DEVELOPMENT_ENVIRONMENT_SETUP.md`
+
+---
+
 ### 1️⃣ 开发前准备
 
 #### 1.1 确认需求
@@ -57,6 +95,28 @@ nano docs/development-logs/YYYYMMDD-功能名称.md
 ### 2️⃣ 开发阶段
 
 #### 2.1 代码开发
+
+**在开发环境中修改代码：**
+
+```bash
+# 后端代码（Python）
+nano /home/services/lms/lms/lms/某个文件.py
+
+# 修改后重启服务生效
+docker compose -f docker-compose-dev.yml restart lms
+
+# 前端代码（Vue）
+nano /home/services/lms/frontend/src/components/某个组件.vue
+
+# 修改后需要重新构建
+docker compose -f docker-compose-dev.yml exec lms \
+  bash -c "cd /home/frappe/frappe-bench/apps/lms/frontend && yarn build"
+
+# 重启 nginx
+docker compose -f docker-compose-dev.yml restart nginx
+```
+
+**编码规范：**
 - 遵循项目编码规范
 - 编写清晰的代码注释
 - 保持代码简洁可读
@@ -86,16 +146,22 @@ git commit -m "feat: 添加考试系统基础结构"
 ### 3️⃣ 测试阶段
 
 #### 3.1 本地测试
+
+**在开发环境中测试：**
+
 ```bash
-# 重启服务
-docker compose -f docker-compose-prod.yml restart lms
+# 重启服务（如果修改了后端代码）
+docker compose -f docker-compose-dev.yml restart lms
 
 # 清除缓存
-docker compose -f docker-compose-prod.yml exec lms \
+docker compose -f docker-compose-dev.yml exec lms \
   bench --site 192.168.20.118 clear-cache
 
 # 查看日志
-docker compose -f docker-compose-prod.yml logs -f lms
+docker compose -f docker-compose-dev.yml logs -f lms
+
+# 检查服务状态
+docker compose -f docker-compose-dev.yml ps
 ```
 
 #### 3.2 功能测试清单
@@ -513,6 +579,7 @@ git push myfork main v1.0.1
 ## ✅ 快速检查清单
 
 ### 开发前
+- [ ] **启动开发环境** (`docker-compose-dev.yml`)
 - [ ] 切换到 custom-dev 分支
 - [ ] 拉取最新代码
 - [ ] 创建功能分支
@@ -540,6 +607,7 @@ git push myfork main v1.0.1
 
 ## 🔗 相关文档
 
+- **开发环境配置：** `docs/DEVELOPMENT_ENVIRONMENT_SETUP.md` ⭐
 - **分支策略：** `docs/BRANCH_STRATEGY.md`
 - **开发快速开始：** `DEVELOPMENT_QUICK_START.md`
 - **完整开发指南：** `docs/CUSTOM_DEVELOPMENT_GUIDE.md`
