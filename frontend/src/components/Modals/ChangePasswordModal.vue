@@ -49,7 +49,7 @@
 
 <script setup>
 import { ref, watch } from 'vue'
-import { Dialog, FormControl, Button, createToast } from 'frappe-ui'
+import { Dialog, FormControl, Button, toast } from 'frappe-ui'
 
 const props = defineProps({
 	modelValue: {
@@ -155,12 +155,7 @@ const handleSubmit = async () => {
 		})
 
 		if (response.message) {
-			createToast({
-				title: '密码修改成功',
-				text: '您的密码已成功修改',
-				icon: 'check',
-				iconClasses: 'text-green-600',
-			})
+			toast.success('密码修改成功')
 			show.value = false
 		}
 	} catch (error) {
