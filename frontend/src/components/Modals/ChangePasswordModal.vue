@@ -49,7 +49,7 @@
 
 <script setup>
 import { ref, watch } from 'vue'
-import { Dialog, FormControl, Button, toast } from 'frappe-ui'
+import { Dialog, FormControl, Button, toast, call } from 'frappe-ui'
 
 const props = defineProps({
 	modelValue: {
@@ -146,39 +146,28 @@ const handleSubmit = async () => {
 	errorMessage.value = ''
 
 	try {
-		const response = await window.frappe.call({
-			method: 'frappe.core.doctype.user.user.update_password',
-			args: {
-				old_password: oldPassword.value,
-				new_password: newPassword.value,
-			},
+		await call('frappe.core.doctype.user.user.update_password', {
+			old_password: oldPassword.value,
+			new_password: newPassword.value,
 		})
 
-		if (response.message) {
-			toast.success('密码修改成功')
-			show.value = false
-		}
+		toast.success('密码修改成功')
+		show.value = false
 	} catch (error) {
 		console.error('Password change error:', error)
 
-		// Frappe API 错误通常在 exc 或 _server_messages 中
-		if (error.exc) {
-			const errorText = error.exc.toLowerCase()
-			if (errorText.includes('wrong password')) {
+		// 处理错误信息
+		if (error && error.messages && error.messages.length > 0) {
+			errorMessage.value = error.messages[0]
+		} else if (error && error.exception) {
+			const errorText = error.exception.toLowerCase()
+			if (errorText.includes('wrong password') || errorText.includes('incorrect password')) {
 				errorMessage.value = '当前密码错误，请重新输入'
-			} else if (errorText.includes('password')) {
-				errorMessage.value = '密码修改失败：' + error.exc
 			} else {
 				errorMessage.value = '密码修改失败，请稍后重试'
 			}
-		} else if (error._server_messages) {
-			try {
-				const messages = JSON.parse(error._server_messages)
-				const message = JSON.parse(messages[0])
-				errorMessage.value = message.message || '密码修改失败'
-			} catch {
-				errorMessage.value = '密码修改失败，请稍后重试'
-			}
+		} else if (error && typeof error === 'string') {
+			errorMessage.value = error
 		} else {
 			errorMessage.value = '密码修改失败，请稍后重试'
 		}
