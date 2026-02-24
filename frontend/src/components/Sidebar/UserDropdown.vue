@@ -61,6 +61,7 @@
 		v-if="userResource.data?.is_moderator"
 		v-model="showSettingsModal"
 	/>
+	<ChangePasswordModal v-model="showChangePasswordModal" />
 </template>
 
 <script setup>
@@ -77,8 +78,10 @@ import Configuration from '@/components/Sidebar/Configuration.vue'
 import FrappeCloudIcon from '@/components/Icons/FrappeCloudIcon.vue'
 import LMSLogo from '@/components/Icons/LMSLogo.vue'
 import SettingsModal from '@/components/Settings/Settings.vue'
+import ChangePasswordModal from '@/components/Modals/ChangePasswordModal.vue'
 import {
 	ChevronDown,
+	Lock,
 	LogIn,
 	LogOut,
 	Moon,
@@ -94,6 +97,7 @@ let { userResource } = usersStore()
 const settingsStore = useSettings()
 let { isLoggedIn } = sessionStore()
 const showSettingsModal = ref(false)
+const showChangePasswordModal = ref(false)
 const theme = ref('light')
 const frappeCloudBaseEndpoint = 'https://frappecloud.com'
 const $dialog = createDialog
@@ -136,6 +140,16 @@ const userDropdownOptions = computed(() => {
 					label: 'My Profile',
 					onClick: () => {
 						router.push(`/user/${userResource.data?.username}`)
+					},
+					condition: () => {
+						return isLoggedIn
+					},
+				},
+				{
+					icon: Lock,
+					label: '修改密码',
+					onClick: () => {
+						showChangePasswordModal.value = true
 					},
 					condition: () => {
 						return isLoggedIn
