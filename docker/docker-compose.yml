@@ -12,9 +12,13 @@ services:
       MYSQL_ROOT_PASSWORD: 123
     volumes:
       - mariadb-data:/var/lib/mysql
+    ports:
+      - 3307:3306
 
   redis:
     image: redis:alpine
+    ports:
+      - 6380:6379
 
   frappe:
     image: frappe/bench:latest
@@ -25,8 +29,8 @@ services:
     volumes:
       - .:/workspace
     ports:
-      - 8000:8000
-      - 9000:9000
+      - 8001:8000
+      - 9002:9000
 
 volumes:
   mariadb-data:

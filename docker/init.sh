@@ -10,6 +10,12 @@ fi
 
 export PATH="${NVM_DIR}/versions/node/v${NODE_VERSION_DEVELOP}/bin/:${PATH}"
 
+# Configure git for better network handling
+git config --global http.postBuffer 524288000
+git config --global http.lowSpeedLimit 0
+git config --global http.lowSpeedTime 999999
+git config --global core.compression 0
+
 bench init --skip-redis-config-generation frappe-bench
 
 cd frappe-bench
