@@ -914,6 +914,66 @@ const redirectToLogin = () => {
 	)}`
 }
 
+// 内容安全保护功能
+const setupContentProtection = () => {
+	const isAdmin = allowEdit()
+
+	// 管理员和讲师不受保护限制
+	if (isAdmin) return
+
+	const contentArea = lessonContainer.value
+	if (!contentArea) return
+
+	// 禁用复制粘贴
+	if (lesson.data?.disable_copy_paste) {
+		// 禁用选择文本
+		contentArea.style.userSelect = 'none'
+		contentArea.style.webkitUserSelect = 'none'
+		contentArea.style.mozUserSelect = 'none'
+		contentArea.style.msUserSelect = 'none'
+
+		// 禁用复制事件
+		const preventCopy = (e) => e.preventDefault()
+		contentArea.addEventListener('copy', preventCopy)
+		contentArea.addEventListener('cut', preventCopy)
+		contentArea.addEventListener('selectstart', preventCopy)
+
+		// 禁用拖拽
+		contentArea.addEventListener('dragstart', preventCopy)
+
+		// 清理函数会在组件销毁时自动调用
+		onBeforeUnmount(() => {
+			contentArea.removeEventListener('copy', preventCopy)
+			contentArea.removeEventListener('cut', preventCopy)
+			contentArea.removeEventListener('selectstart', preventCopy)
+			contentArea.removeEventListener('dragstart', preventCopy)
+		})
+	}
+
+	// 禁用右键菜单
+	if (lesson.data?.disable_right_click) {
+		const preventContextMenu = (e) => e.preventDefault()
+		contentArea.addEventListener('contextmenu', preventContextMenu)
+
+		onBeforeUnmount(() => {
+			contentArea.removeEventListener('contextmenu', preventContextMenu)
+		})
+	}
+}
+
+// 监听课程数据变化，应用内容保护
+watch(
+	() => lesson.data,
+	(newData) => {
+		if (newData && (newData.disable_copy_paste || newData.disable_right_click)) {
+			nextTick(() => {
+				setupContentProtection()
+			})
+		}
+	},
+	{ immediate: true }
+)
+
 usePageMeta(() => {
 	return {
 		title: lesson?.data?.title,

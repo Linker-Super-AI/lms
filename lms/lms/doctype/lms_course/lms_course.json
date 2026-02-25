@@ -24,6 +24,9 @@
   "upcoming",
   "featured",
   "disable_self_learning",
+  "security_section",
+  "disable_copy_paste",
+  "disable_right_click",
   "section_break_18",
   "short_introduction",
   "column_break_viqw",
@@ -94,6 +97,25 @@
    "fieldname": "disable_self_learning",
    "fieldtype": "Check",
    "label": "Disable Self Learning"
+  },
+  {
+   "fieldname": "security_section",
+   "fieldtype": "Section Break",
+   "label": "安全保护"
+  },
+  {
+   "default": "0",
+   "fieldname": "disable_copy_paste",
+   "fieldtype": "Check",
+   "label": "禁用复制粘贴",
+   "description": "启用后，学生无法复制课程内容（包括文字和图片）"
+  },
+  {
+   "default": "0",
+   "fieldname": "disable_right_click",
+   "fieldtype": "Check",
+   "label": "禁用右键菜单",
+   "description": "启用后，学生无法使用鼠标右键（防止另存为图片等操作）"
   },
   {
    "fieldname": "image",
