@@ -36,6 +36,7 @@
     "frappe-ui": "^0.1.261",
     "highlight.js": "11.11.1",
     "lucide-vue-next": "0.383.0",
+    "mammoth": "^1.8.0",
     "markdown-it": "14.0.0",
     "pinia": "2.0.33",
     "plyr": "3.7.8",

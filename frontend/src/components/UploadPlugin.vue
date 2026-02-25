@@ -1,6 +1,6 @@
 <template>
 	<FileUploader
-		:fileTypes="['image/*', 'video/*', 'audio/*', '.pdf']"
+		:fileTypes="['image/*', 'video/*', 'audio/*', '.pdf', '.docx']"
 		:validateFile="validateFile"
 		@success="(data) => addFile(data)"
 		ref="fileUploader"
@@ -38,8 +38,8 @@ const addFile = (file) => {
 
 const validateFile = (file) => {
 	let extension = file.name.split('.').pop().toLowerCase()
-	if (!['jpg', 'jpeg', 'png', 'mp4', 'mov', 'mp3', 'pdf'].includes(extension)) {
-		return 'Only image and video files are allowed.'
+	if (!['jpg', 'jpeg', 'png', 'mp4', 'mov', 'mp3', 'pdf', 'docx'].includes(extension)) {
+		return 'Only image, video, audio, PDF and DOCX files are allowed.'
 	}
 }
 

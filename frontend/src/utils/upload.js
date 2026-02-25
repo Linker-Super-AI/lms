@@ -1,5 +1,6 @@
 import AudioBlock from '@/components/AudioBlock.vue'
 import VideoBlock from '@/components/VideoBlock.vue'
+import DocxBlock from '@/components/DocxBlock.vue'
 import UploadPlugin from '@/components/UploadPlugin.vue'
 import { h, createApp } from 'vue'
 import { Upload as UploadIcon } from 'lucide-vue-next'
@@ -71,6 +72,12 @@ export class Upload {
 				file.file_url
 			)}" width='100%' height='700px' class="mb-4" type="application/pdf"></iframe>`
 			return
+		} else if (this.isDocx(file.file_type)) {
+			const app = createApp(DocxBlock, {
+				file: window.location.origin + file.file_url,
+			})
+			app.mount(this.wrapper)
+			return
 		} else {
 			this.wrapper.innerHTML = `<img class="mb-4" src=${encodeURI(
 				file.file_url
@@ -112,5 +119,9 @@ export class Upload {
 
 	isAudio(type) {
 		return ['mp3', 'wav', 'ogg'].includes(type.toLowerCase())
+	}
+
+	isDocx(type) {
+		return ['docx', 'doc'].includes(type.toLowerCase())
 	}
 }
